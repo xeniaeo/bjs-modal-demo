@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, height=device-height">
+    <meta name="description" content="Modal demo">
+
+    <title>Modal demo</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+</head>
+
+<body touch-action="none" oncontextmenu="return false">
+    <div>
+        <canvas id="renderCanvas"></canvas>
+        <!-- Modal -->
+        <div class="modal" id="modal-test">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p id="modalTitle">Modal</p>
+                    <span class="close-btn">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <img src="./UI/among.png">
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+
+        // Reduce memory footprint
+        engine.enableOfflineSupport = false; // Turn off IndexedDB
+        engine.doNotHandleContextLost = true;
+
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+            // Reduce calls to gl.clear()
+            scene.autoClear = false; // Color buffer
+            scene.autoClearDepthAndStencil = false;
+
+            // Adding a light
+            var light = new BABYLON.HemisphericLight("", new BABYLON.Vector3(0, 1, 0), scene)
+
+            // Adding an Arc Rotate Camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", -1.58, 1.5, 5, new BABYLON.Vector3(-0.3, 2.7, -4), scene);
+            camera.attachControl(canvas, true);
+            camera.lowerRadiusLimit = camera.upperRadiusLimit = camera.radius = 5;  // Limit camera zoom
+            camera.panningSensibility = 0; // Disable camera pan
+            camera.angularSensibilityX = 3000;
+            camera.angularSensibilityY = 3000;
+
+            // Load meshes from assetsManager
+            var assetsManager = new BABYLON.AssetsManager(scene);
+            var avatarMeshTask = assetsManager.addMeshTask("avatar", "", "./models/", "character.glb");
+            var avatarModel;
+            avatarMeshTask.onSuccess = function (task) {
+                avatarModel = task.loadedMeshes[0];
+                avatarModel.rotation = new BABYLON.Vector3(0, 31.8, 0);
+                avatarModel.scaling = new BABYLON.Vector3(-170, 170, 170);
+
+                avatarMesh = scene.getMeshByName("lpMale_Business_A");
+                avatarMesh.freezeWorldMatrix();
+                avatarMesh.alwaysSelectAsActiveMesh = false;
+                avatarMesh.doNotSyncBoundingInfo = true;
+
+                assetsManager.removeTask("avatar");
+            }
+
+            // Get DOM elements
+            let modal = document.getElementById("modal-test");
+            let closeBtn = modal.querySelector(".close-btn");
+            closeBtn.onclick = function () {
+                modal.style.display = "none";
+            }
+
+            scene.onPointerObservable.add(function (evt) {
+                if (evt.pickInfo.pickedMesh.name == "lpMale_Business_A") {
+                    modal.style.display = "flex";
+                }
+            }, BABYLON.PointerEventTypes.POINTERPICK);
+
+            // Reduce memory footprint
+            scene.clearCachedVertexData();
+            scene.cleanCachedTextureBuffer();
+
+            assetsManager.onFinish = function (tasks) {
+                assetsManager.reset();
+                light.position = camera.position; // Move the light with the camera
+            };
+
+            assetsManager.loadAsync();
+
+            return scene;
+        }
+        
+        const scene = createScene();
+
+        // Register a render loop to repeatedly render the scene
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+
+        // Resize
+        window.addEventListener("resize", function () { engine.resize(); });
+    </script>
+</body>
+
+</html>
