@@ -35,15 +35,8 @@
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true);
 
-        // Reduce memory footprint
-        engine.enableOfflineSupport = false; // Turn off IndexedDB
-        engine.doNotHandleContextLost = true;
-
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
-            // Reduce calls to gl.clear()
-            scene.autoClear = false; // Color buffer
-            scene.autoClearDepthAndStencil = false;
 
             // Adding a light
             var light = new BABYLON.HemisphericLight("", new BABYLON.Vector3(0, 1, 0), scene)
@@ -69,8 +62,6 @@
                 avatarMesh.freezeWorldMatrix();
                 avatarMesh.alwaysSelectAsActiveMesh = false;
                 avatarMesh.doNotSyncBoundingInfo = true;
-
-                assetsManager.removeTask("avatar");
             }
 
             // Get DOM elements
@@ -85,10 +76,6 @@
                     modal.style.display = "flex";
                 }
             }, BABYLON.PointerEventTypes.POINTERPICK);
-
-            // Reduce memory footprint
-            scene.clearCachedVertexData();
-            scene.cleanCachedTextureBuffer();
 
             assetsManager.onFinish = function (tasks) {
                 assetsManager.reset();
