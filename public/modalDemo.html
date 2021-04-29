@@ -44,10 +44,6 @@
             // Adding an Arc Rotate Camera
             var camera = new BABYLON.ArcRotateCamera("Camera", -1.58, 1.5, 5, new BABYLON.Vector3(-0.3, 2.7, -4), scene);
             camera.attachControl(canvas, true);
-            camera.lowerRadiusLimit = camera.upperRadiusLimit = camera.radius = 5;  // Limit camera zoom
-            camera.panningSensibility = 0; // Disable camera pan
-            camera.angularSensibilityX = 3000;
-            camera.angularSensibilityY = 3000;
 
             // Load meshes from assetsManager
             var assetsManager = new BABYLON.AssetsManager(scene);
@@ -57,11 +53,7 @@
                 avatarModel = task.loadedMeshes[0];
                 avatarModel.rotation = new BABYLON.Vector3(0, 31.8, 0);
                 avatarModel.scaling = new BABYLON.Vector3(-170, 170, 170);
-
                 avatarMesh = scene.getMeshByName("lpMale_Business_A");
-                avatarMesh.freezeWorldMatrix();
-                avatarMesh.alwaysSelectAsActiveMesh = false;
-                avatarMesh.doNotSyncBoundingInfo = true;
             }
 
             // Get DOM elements
